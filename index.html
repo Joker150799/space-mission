@@ -3,412 +3,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stardust OS - Unified Solar System</title>
+    <title>Project Stardust - Cockpit Terminal</title>
     <style>
+        /* Import futuristic font */
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
         :root {
-            --neon-blue: #4df8ff; --neon-green: #5cff5c;
-            --neon-red: #ff4d4d; --neon-gold: #ffd700;
+            --neon-blue: #4df8ff;
+            --neon-green: #5cff5c;
+            --neon-red: #ff4d4d;
+            --neon-gold: #ffd700;
+            --dark-bg: #050510;
         }
 
         body {
-            margin: 0; overflow: hidden; background-color: #000;
-            font-family: 'Share Tech Mono', monospace; color: var(--neon-blue);
-            height: 100vh; width: 100vw;
+            margin: 0;
+            overflow: hidden;
+            background-color: var(--dark-bg);
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--neon-blue);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        #sim-canvas-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; cursor: grab; }
-        #sim-canvas-container:active { cursor: grabbing; }
-
-        #hud-container {
-            position: absolute; top: 30px; left: 30px; width: 420px; max-height: calc(100vh - 60px);
-            background: rgba(2, 5, 12, 0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(77, 248, 255, 0.2); border-radius: 8px; padding: 25px;
-            z-index: 10; overflow-y: auto; display: flex; flex-direction: column;
+        /* --- SPACESHIP ENVIRONMENT --- */
+        #starfield {
+            position: absolute;
+            top: 0; left: 0; width: 200%; height: 200%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: warpSpeed 20s linear infinite;
+            opacity: 0.5;
+            z-index: -2;
         }
 
-        @media (max-width: 768px) {
-            #hud-container { width: calc(100vw - 40px); top: auto; bottom: 20px; left: 20px; max-height: 45vh; padding: 15px; }
+        @keyframes warpSpeed {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
         }
 
-        #hud-container::-webkit-scrollbar { width: 4px; }
-        #hud-container::-webkit-scrollbar-thumb { background: rgba(77, 248, 255, 0.5); }
+        #cockpit-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, transparent 40%, black 90%);
+            z-index: -1;
+            pointer-events: none;
+        }
 
-        h1 { color: var(--neon-red); text-transform: uppercase; border-bottom: 1px solid var(--neon-red); padding-bottom: 8px; margin-top: 0; font-size: 1.3rem; letter-spacing: 2px;}
-        .status-bar { display: flex; justify-content: space-between; font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;}
+        #hud-frame {
+            position: absolute;
+            top: 20px; left: 20px; right: 20px; bottom: 20px;
+            border: 2px solid rgba(77, 248, 255, 0.3);
+            border-radius: 20px;
+            box-shadow: inset 0 0 30px rgba(77, 248, 255, 0.2);
+            pointer-events: none;
+            z-index: 1;
+        }
 
-        h2 { color: var(--neon-gold); font-size: 1.1rem; margin-top: 0; }
-        p { font-size: 0.95rem; line-height: 1.5; color: #ddd; margin-bottom: 10px; }
-        .briefing-box { background-color: rgba(77, 248, 255, 0.03); border-left: 2px solid var(--neon-blue); padding: 12px; margin-bottom: 15px; }
-        .debrief-box { background-color: rgba(92, 255, 92, 0.05); border-left: 2px solid var(--neon-green); padding: 12px; margin-bottom: 15px; display: none; }
+        #hud-frame::before {
+            content: "STARDUST VOYAGER // OS V.4.2 // TACTICAL DISPLAY";
+            position: absolute;
+            top: -12px; left: 30px;
+            background-color: var(--dark-bg);
+            padding: 0 10px;
+            font-size: 0.8rem;
+            color: rgba(77, 248, 255, 0.6);
+        }
+
+        /* --- MAIN TERMINAL --- */
+        #terminal {
+            background-color: rgba(5, 5, 16, 0.9);
+            border: 3px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 25px rgba(77, 248, 255, 0.4), inset 0 0 10px rgba(77, 248, 255, 0.2);
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Scrollbar Styling */
+        #terminal::-webkit-scrollbar { width: 8px; }
+        #terminal::-webkit-scrollbar-track { background: #000; }
+        #terminal::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 4px; }
+
+        h1 {
+            color: var(--neon-red);
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--neon-red);
+            padding-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+            margin-top: 0;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .status-bar { display: flex; justify-content: space-between; font-size: 0.9rem; color: rgba(77, 248, 255, 0.7); margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px;}
+
+        /* --- VISUAL SIMULATION CONTAINER --- */
+        #visual-sim-container {
+            height: 120px;
+            background-color: rgba(0,0,0,0.5);
+            border: 1px solid rgba(77, 248, 255, 0.3);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        #visual-sim-container::after {
+            content: "VISUAL SIMULATION";
+            position: absolute;
+            bottom: 2px; right: 5px;
+            font-size: 0.7rem;
+            opacity: 0.5;
+        }
+
+        /* --- CSS ANIMATION ARCHETYPES --- */
+        .sim-object { border-radius: 50%; position: absolute; }
+        .center-mass { width: 30px; height: 30px; background: var(--neon-gold); box-shadow: 0 0 15px var(--neon-gold); }
+        .planet-mass { width: 15px; height: 15px; background: var(--neon-blue); box-shadow: 0 0 5px var(--neon-blue); }
+        
+        /* Archetype: Orbit (Gravity) */
+        .sim-orbit-container { width: 100px; height: 100px; position: relative; animation: spin 4s linear infinite; }
+        .sim-orbit-body { top: -7px; left: 42px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Archetype: Ellipse */
+        .sim-ellipse-container { width: 140px; height: 60px; border: 1px dashed rgba(77, 248, 255, 0.3); border-radius: 50%; position: relative; }
+        .sim-ellipse-mover { top: 50%; left: 50%; animation: moveEllipse 3s linear infinite; }
+        @keyframes moveEllipse {
+            0% { transform: translate(-70px, -50%); }
+            50% { transform: translate(55px, -50%); }
+            100% { transform: translate(-70px, -50%); }
+        }
+
+        /* Archetype: Spin (Rotation/Storms) */
+        .sim-spinner { width: 50px; height: 50px; background: linear-gradient(45deg, var(--neon-red), orange); border-radius: 50%; animation: spinFast 1s linear infinite; box-shadow: 0 0 20px var(--neon-red);}
+        @keyframes spinFast { 100% { transform: rotate(-360deg); } }
+
+        /* Archetype: Explode (Supernova) */
+        .sim-explode { width: 10px; height: 10px; background: white; border-radius: 50%; animation: explode 2s ease-out infinite; }
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 white; }
+            100% { transform: scale(15); opacity: 0; box-shadow: 0 0 50px white; }
+        }
+        
+        /* Archetype: Black Hole */
+        .sim-blackhole { width: 40px; height: 40px; background: black; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 30px white, inset 0 0 20px black; }
+
+        /* Archetype: Static Object */
+        .sim-static-img { font-size: 50px; }
+
+
+        /* --- UI ELEMENTS --- */
+        h2 { color: var(--neon-gold); font-size: 1.3rem; margin-top: 0; }
+        h3 { color: #a466ff; font-size: 1.1rem; text-transform: uppercase; border-bottom: 1px dashed #a466ff; display: inline-block; padding-bottom: 5px; }
+        p { font-size: 1.1rem; line-height: 1.6; color: #e0e0e0; }
+        
+        .briefing-box { background-color: rgba(77, 248, 255, 0.05); border-left: 4px solid var(--neon-blue); padding: 15px; margin-bottom: 20px; }
+        .debrief-box { background-color: rgba(92, 255, 92, 0.05); border-left: 4px solid var(--neon-green); padding: 15px; margin-bottom: 20px; display: none; }
 
         input[type="text"] {
-            background-color: rgba(0,0,0,0.7); border: 1px solid var(--neon-blue); color: var(--neon-blue);
-            font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; padding: 12px; width: calc(100% - 26px); margin-bottom: 10px; text-transform: uppercase;
+            background-color: #000; border: 2px solid var(--neon-blue); color: var(--neon-blue);
+            font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; padding: 10px; width: calc(100% - 26px); margin-bottom: 15px; text-transform: uppercase;
         }
-        input[type="text"]:focus { outline: none; box-shadow: 0 0 15px rgba(77, 248, 255, 0.4); background-color: rgba(0,0,0,0.9); }
+        input[type="text"]:focus { outline: none; box-shadow: 0 0 15px rgba(77, 248, 255, 0.7); }
 
         button {
-            background-color: var(--neon-blue); color: #000; border: none; padding: 12px 24px; border-radius: 3px;
-            font-family: 'Share Tech Mono', monospace; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; margin-bottom: 5px;
+            background-color: var(--neon-blue); color: #000; border: none; padding: 12px 24px;
+            font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; display: block; width: 100%;
         }
         button:hover { background-color: #fff; box-shadow: 0 0 20px var(--neon-blue); }
-        #next-btn { background-color: var(--neon-green); display: none; }
+        #next-btn { background-color: var(--neon-green); display: none; margin-top: 15px; }
         #next-btn:hover { background-color: #fff; box-shadow: 0 0 20px var(--neon-green); }
-        #message { margin-top: 5px; font-weight: bold; min-height: 20px; text-align: center;}
-        .error { color: var(--neon-red); }
-        .hint-text { position: absolute; bottom: 20px; right: 20px; color: rgba(255,255,255,0.4); font-size: 0.8rem; pointer-events: none; text-align: right;}
+
+        #message { margin-top: 15px; font-weight: bold; min-height: 20px; text-align: center;}
+        .error { color: var(--neon-red); text-shadow: 0 0 5px var(--neon-red); }
     </style>
 </head>
 <body>
 
-    <div id="sim-canvas-container"></div>
-    <div class="hint-text">DRAG TO ROTATE VIEW<br>SCROLL TO ZOOM</div>
+    <div id="starfield"></div>
+    <div id="cockpit-overlay"></div>
+    <div id="hud-frame"></div>
 
-    <div id="hud-container">
-        <h1>Stardust OS // Live Feed</h1>
+    <div id="terminal">
+        <h1>Project Stardust: Override Terminal</h1>
         <div class="status-bar">
             <span id="phase-display">SYSTEM BOOTING...</span>
             <span id="level-display">LEVEL: 0/25</span>
         </div>
         
         <h2 id="level-title">Incoming Transmission...</h2>
+
+        <div id="visual-sim-container">
+            <div id="sim-content">
+                <div style="font-size: 3rem;">🚀</div>
+            </div>
+        </div>
+        
         <div id="briefing-section" class="briefing-box">
-            <p id="briefing-text" style="color:var(--neon-blue)">CRITICAL ALERT: Voyager Mainframe locked. The comprehensive Solar System telemetry engine is active. Observe the celestial bodies and answer the prompts.</p>
+            <h3>Mission Briefing</h3>
+            <p id="briefing-text">CRITICAL ALERT: The main computer of the *Stardust Voyager* has locked down. As the Junior Science Officer, you must bypass the security lockouts by proving your knowledge of the cosmos. Read the briefings, observe the simulations, and use the ship's database (the internet) to find the answers.</p>
         </div>
 
         <div id="question-section">
-            <p id="level-text" style="color:var(--neon-gold); font-weight:bold; text-align: center;">Click START MISSION to engage engines.</p>
+            <p id="level-text" style="color:var(--neon-gold); font-weight:bold; text-align: center;">Click START MISSION to begin your training.</p>
             <input type="text" id="answer-input" placeholder="ENTER OVERRIDE CODE" style="display:none;" autocomplete="off">
-            <button id="submit-btn">INITIALIZE ENGINE</button>
+            <button id="submit-btn" onclick="startGame()">START MISSION</button>
             <div id="message"></div>
         </div>
 
         <div id="debrief-section" class="debrief-box">
-            <h3 style="color: var(--neon-green); margin-top:0;">Access Granted</h3>
+            <h3 style="color: var(--neon-green); border-color: var(--neon-green);">Access Granted</h3>
             <p id="debrief-text"></p>
-            <button id="next-btn">PROCEED TO NEXT LEVEL >></button>
+            <button id="next-btn" onclick="nextLevel()">PROCEED TO NEXT LEVEL >></button>
         </div>
     </div>
 
-    <script type="module">
-        import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
-        import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js';
-
-        // --- 1. CORE ENGINE SETUP ---
-        const container = document.getElementById('sim-canvas-container');
-        const scene = new THREE.Scene();
-        
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 8000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
-        // Realistic hard lighting with physical correct decay
-        renderer.physicallyCorrectLights = true;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.0;
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        container.appendChild(renderer.domElement);
-
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; controls.dampingFactor = 0.05;
-        controls.maxDistance = 3000;
-
-        // Dynamic Lighting
-        // Ambient starlight (very faint blue to mimic deep space scattering)
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x002244, 0.05);
-        scene.add(hemiLight);
-        
-        // The Sun's intense point light
-        const sunLight = new THREE.PointLight(0xfff5e6, 50000, 3000, 2); // Color, Intensity, Distance, Decay
-        sunLight.castShadow = true;
-        sunLight.shadow.mapSize.width = 2048;
-        sunLight.shadow.mapSize.height = 2048;
-        scene.add(sunLight);
-
-        let planets = {}; // Store planet groups to move camera to them later
-
-        // --- ASSET LOADER ---
-        const texLoader = new THREE.TextureLoader();
-        const starmap = texLoader.load('https://cdn.skypack.dev/three@0.132.2/examples/textures/equirectangular/milky_way_2k.jpg');
-        starmap.mapping = THREE.EquirectangularReflectionMapping;
-        scene.background = starmap;
-
-        const earthMap = texLoader.load('https://cdn.skypack.dev/three@0.132.2/examples/textures/planets/earth_atmos_2048.jpg');
-        const cloudMap = texLoader.load('https://cdn.skypack.dev/three@0.132.2/examples/textures/planets/earth_clouds_1024.png');
-        const moonMap = texLoader.load('https://cdn.skypack.dev/three@0.132.2/examples/textures/planets/moon_1024.jpg');
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // --- REALISTIC ASTRONOMY DATA ---
-        // Distance is scaled logarithmically so it fits on screen but looks distinct
-        const scaleSizes = { mercury: 0.38, venus: 0.95, earth: 1.0, mars: 0.53, jupiter: 11.2, saturn: 9.4, uranus: 4.0, neptune: 3.8 };
-        const tilts = { mercury: 0.03, venus: 177.3, earth: 23.5, mars: 25.2, jupiter: 3.1, saturn: 26.7, uranus: 97.7, neptune: 28.3 };
-        const rotSpeeds = { mercury: 58.6, venus: -243, earth: 1.0, mars: 1.03, jupiter: 0.41, saturn: 0.45, uranus: -0.72, neptune: 0.67 };
-
-        // --- UNIFIED SOLAR SYSTEM BUILDER ---
-        function buildSolarSystem() {
-            // THE SUN
-            const sunGeo = new THREE.SphereGeometry(30, 64, 64); // Scaled for visibility
-            const sunMat = new THREE.MeshBasicMaterial({ color: 0xfff0dd }); 
-            const sun = new THREE.Mesh(sunGeo, sunMat);
-            scene.add(sun);
-            planets['sun'] = sun;
-
-            function createPlanet(name, color, distance, orbPeriod, roughness = 0.8, texture = null, moons = []) {
-                const size = scaleSizes[name];
-                const group = new THREE.Group();
-                
-                const geo = new THREE.SphereGeometry(size, 64, 64);
-                const matOpts = { color: color, roughness: roughness };
-                if (texture) matOpts.map = texture;
-                
-                const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial(matOpts));
-                mesh.castShadow = true; mesh.receiveShadow = true;
-                group.add(mesh);
-                group.rotation.z = tilts[name] * (Math.PI / 180);
-                
-                // Add Moons
-                const moonObjects = [];
-                moons.forEach((m, idx) => {
-                    const mGeo = new THREE.SphereGeometry(m.size, 16, 16);
-                    const mMat = new THREE.MeshStandardMaterial({ color: m.color || 0xaaaaaa, roughness: 1.0, map: m.texture || null });
-                    const mMesh = new THREE.Mesh(mGeo, mMat);
-                    mMesh.castShadow = true; mMesh.receiveShadow = true;
-                    group.add(mMesh);
-                    moonObjects.push({ mesh: mMesh, dist: m.dist, speed: m.speed, offset: idx * Math.PI });
-                });
-
-                scene.add(group);
-                group.userData = { distance: distance, period: orbPeriod, mesh: mesh, rotSpeed: rotSpeeds[name], moons: moonObjects };
-                
-                // Orbit path
-                const path = new THREE.Mesh(new THREE.RingGeometry(distance-0.5, distance+0.5, 128), new THREE.MeshBasicMaterial({color: 0x333333, side: THREE.DoubleSide, transparent:true, opacity:0.3}));
-                path.rotation.x = Math.PI/2; scene.add(path);
-
-                planets[name] = group;
-                return group;
-            }
-
-            // Inner Planets
-            createPlanet('mercury', 0x999999, 60, 88);
-            createPlanet('venus', 0xeeddcc, 90, 225, 0.2); // Shiny clouds
-            
-            // Earth + Clouds + Moon
-            const earth = createPlanet('earth', 0xffffff, 130, 365.25, 0.5, earthMap, [{ size: 0.27, dist: 5, speed: 0.05, texture: moonMap }]);
-            const clouds = new THREE.Mesh(new THREE.SphereGeometry(scaleSizes.earth + 0.05, 64, 64), new THREE.MeshLambertMaterial({ map: cloudMap, transparent: true, opacity: 0.8, depthWrite: false }));
-            earth.userData.mesh.add(clouds);
-            earth.userData.clouds = clouds;
-
-            // Mars + Phobos + Deimos
-            createPlanet('mars', 0xc1440e, 180, 687, 0.9, null, [
-                { size: 0.1, dist: 2, speed: 0.08, color: 0x887766 },
-                { size: 0.08, dist: 3, speed: 0.04, color: 0x776655 }
-            ]);
-
-            // THE ASTEROID BELT (Particle System)
-            const beltGeo = new THREE.BufferGeometry();
-            const beltCount = 8000;
-            const beltPos = new Float32Array(beltCount * 3);
-            const beltColors = new Float32Array(beltCount * 3);
-            for(let i=0; i < beltCount * 3; i+=3) {
-                const radius = 230 + (Math.random() * 50); // Between Mars (180) and Jupiter (340)
-                const theta = Math.random() * Math.PI * 2;
-                beltPos[i] = Math.cos(theta) * radius;
-                beltPos[i+1] = (Math.random() - 0.5) * 8; // Slight thickness
-                beltPos[i+2] = Math.sin(theta) * radius;
-                
-                const c = 0.4 + (Math.random() * 0.3); // Rocky greys/browns
-                beltColors[i] = c; beltColors[i+1] = c*0.9; beltColors[i+2] = c*0.8;
-            }
-            beltGeo.setAttribute('position', new THREE.BufferAttribute(beltPos, 3));
-            beltGeo.setAttribute('color', new THREE.BufferAttribute(beltColors, 3));
-            const beltMat = new THREE.PointsMaterial({ size: 1.0, vertexColors: true });
-            const belt = new THREE.Points(beltGeo, beltMat);
-            scene.add(belt);
-            planets['belt'] = belt; // To animate rotation
-
-            // Gas Giants
-            createPlanet('jupiter', 0xdcae82, 340, 4333, 0.8, null, [
-                { size: 0.4, dist: 15, speed: 0.03, color: 0xffffaa }, // Io
-                { size: 0.3, dist: 18, speed: 0.02, color: 0xeeeeee }, // Europa
-                { size: 0.5, dist: 22, speed: 0.015, color: 0xaaaaaa }, // Ganymede
-                { size: 0.45, dist: 26, speed: 0.01, color: 0x888888 }  // Callisto
-            ]);
-
-            const saturn = createPlanet('saturn', 0xeebb88, 480, 10759, 0.7, null, [
-                { size: 0.4, dist: 25, speed: 0.02, color: 0xffaa00 } // Titan (orange atmos)
-            ]);
-            const ring = new THREE.Mesh(new THREE.RingGeometry(14, 24, 128), new THREE.MeshLambertMaterial({ color: 0xddccaa, side: THREE.DoubleSide, transparent: true, opacity: 0.8 }));
-            ring.rotation.x = Math.PI / 2; ring.castShadow = true; ring.receiveShadow = true;
-            saturn.userData.mesh.add(ring);
-
-            createPlanet('uranus', 0x99ffff, 620, 30687, 0.5);
-            createPlanet('neptune', 0x3366ff, 750, 60190, 0.5);
-        }
-
-        buildSolarSystem();
-
-        // --- 3. ANIMATION LOOP ---
-        const clock = new THREE.Clock();
-        
-        window.animate = function() {
-            requestAnimationFrame(window.animate);
-            controls.update(); 
-            const delta = clock.getDelta();
-            const time = Date.now();
-            
-            Object.values(planets).forEach(obj => {
-                if (obj.userData && obj.userData.isPlanet) {
-                    // Orbit
-                    const daysPassed = time / 10000; // Speed up time
-                    const angle = ((daysPassed % obj.userData.period) / obj.userData.period) * Math.PI * 2;
-                    obj.position.x = Math.cos(angle) * obj.userData.distance;
-                    obj.position.z = Math.sin(angle) * obj.userData.distance;
-                    
-                    // Planet Rotation
-                    const rotationStep = (1 / obj.userData.rotSpeed) * delta * 2;
-                    obj.userData.mesh.rotation.y += rotationStep; 
-                    if(obj.userData.clouds) obj.userData.clouds.rotation.y += rotationStep * 1.1;
-                    
-                    // Moons Orbit
-                    if(obj.userData.moons) {
-                        obj.userData.moons.forEach(m => {
-                            m.mesh.position.x = Math.cos(time * m.speed + m.offset) * m.dist;
-                            m.mesh.position.z = Math.sin(time * m.speed + m.offset) * m.dist;
-                        });
-                    }
-                }
-            });
-            
-            planets['belt'].rotation.y += delta * 0.05; // Slowly rotate asteroid belt
-            renderer.render(scene, camera);
-        }
-
-        // --- 4. CAMERA CONTROLLER ---
-        window.flyTo = function(targetName, zoom) {
-            let targetObj = planets[targetName];
-            if(!targetObj) targetObj = planets['sun'];
-            
-            // Adjust HUD offset
-            let offsetX = window.innerWidth > 768 ? zoom * 0.5 : 0;
-            let offsetY = window.innerWidth <= 768 ? zoom * 0.5 : 0;
-
-            // Simple jump (a real smooth fly-to requires complex Tweening, this is instant for reliability)
-            controls.target.copy(targetObj.position);
-            camera.position.set(targetObj.position.x + offsetX + zoom, targetObj.position.y + (zoom*0.5), targetObj.position.z + zoom);
-        };
-
-        // --- 5. THE FULL 25 LEVEL LOGIC ---
+    <script>
+        // Level Data with Animation Archetypes
         const levels = [
-            { phase: "Phase 1: Solar System", title: "Level 1: The Pull", briefing: "Observe the massive Sun. Its gravity holds everything together.", text: "What is this invisible pulling force called?", ans: "gravity", target: "sun", zoom: 150, debrief: "Excellent! Gravity runs the universe." },
-            { phase: "Phase 1: Solar System", title: "Level 2: The Track", briefing: "Look at the orbital lines. Planets travel in slightly stretched-out paths.", text: "What is the scientific word for this shape?", ans: "ellipse", altAns: "elliptical", target: "sun", zoom: 250, debrief: "Nailed it." },
-            { phase: "Phase 1: Solar System", title: "Level 3: The Stick", briefing: "Scientists use the distance from Earth to the Sun as a baseline ruler.", text: "What is this measurement called?", ans: "astronomical unit", target: "earth", zoom: 20, debrief: "Correct! Jupiter is about 5 AU away." },
-            { phase: "Phase 1: Solar System", title: "Level 4: The Storm", briefing: "Jupiter has 4 major Galilean moons orbiting it, and a massive storm.", text: "What is the three-word name for this storm?", ans: "great red spot", target: "jupiter", zoom: 50, debrief: "Storm bypassed!" },
-            { phase: "Phase 1: Solar System", title: "Level 5: The Rings", briefing: "Saturn's rings physically cast shadows. It also has a giant orange moon, Titan.", text: "What frozen substance makes up Saturn's rings?", ans: "ice", altAns: "water ice", target: "saturn", zoom: 40, debrief: "Phase 1 complete!" },
+            // Phase 1
+            { 
+                phase: "Phase 1: Solar System Basics", title: "Level 1: The Invisible String", 
+                briefing: "Everything with mass has a pulling force. The bigger the object, the stronger the pull! This force keeps planets in orbit.",
+                text: "What is the name of this invisible pulling force?", ans: "gravity",
+                debrief: "Excellent! Gravity dictates everything in space. But planets don't travel in perfect circles...",
+                simHtml: `<div class="sim-object center-mass" style="top:45px; left:45%"></div><div class="sim-orbit-container" style="left:40%"><div class="sim-object planet-mass sim-orbit-body"></div></div>`
+            },
+            { 
+                phase: "Phase 1: Solar System Basics", title: "Level 2: The Space Track", 
+                briefing: "Planets travel in slightly stretched-out paths. This means Earth is sometimes closer to the sun, and sometimes farther away.",
+                text: "What is the scientific mathematical word for this oval-like shape?", ans: "ellipse", altAns: "elliptical",
+                debrief: "Nailed it. Because orbits are so large, we need a special measuring stick for space.",
+                simHtml: `<div class="sim-object center-mass" style="top:45px; left:55px"></div><div class="sim-ellipse-container"><div class="sim-object planet-mass sim-ellipse-mover"></div></div>`
+            },
+            { 
+                phase: "Phase 1: Solar System Basics", title: "Level 3: The Measuring Stick", 
+                briefing: "Scientists use the average distance from the Earth to the Sun as a baseline ruler. It equals about 93 million miles.",
+                text: "What is this cosmic measurement called? (Two words)", ans: "astronomical unit",
+                debrief: "Correct! Jupiter is about 5 AU away. Speaking of Jupiter, it has some crazy weather...",
+                simHtml: `<div style="display:flex; align-items:center; gap:10px;"><div class="sim-object center-mass" style="position:relative;"></div><div style="width:100px; height:2px; background:var(--neon-blue)"></div><div class="sim-object planet-mass" style="position:relative; background: green;"></div></div><div style="position:absolute; bottom:20px;">1 AU Distance</div>`
+            },
+            { 
+                phase: "Phase 1: Solar System Basics", title: "Level 4: The Great Storm", 
+                briefing: "Jupiter is a gas giant with massive storms. One anti-cyclone is larger than Earth and has been spinning for centuries.",
+                text: "What is the famous three-word name for this massive storm?", ans: "great red spot",
+                debrief: "Storm bypassed! Next planet over is the Lord of the Rings.",
+                simHtml: `<div class="sim-spinner"></div>`
+            },
+            { 
+                phase: "Phase 1: Solar System Basics", title: "Level 5: Rings of Ice", 
+                briefing: "Saturn's rings look solid, but they are made of billions of floating chunks ranging from sand-size to mountain-size.",
+                text: "These chunks are primarily made of rock and what other frozen substance?", ans: "ice", altAns: "water ice",
+                debrief: "Phase 1 complete! Now we travel to the most extreme places in the solar system.",
+                simHtml: `<div class="sim-object center-mass" style="top:45px; left:45%; background:orange;"></div><div style="width: 120px; height: 40px; border: 4px double rgba(255,255,255,0.5); border-radius: 50%; position: absolute; top: 40px; left: 38%; transform: rotate(-15deg);"></div>`
+            },
             
-            { phase: "Phase 2: Extremes", title: "Level 6: Heat Trap", briefing: "Venus is highly reflective and spins backwards (retrograde).", text: "This heat-trapping process is known as what effect?", ans: "greenhouse effect", target: "venus", zoom: 10, debrief: "Correct. Next, the rusty planet." },
-            { phase: "Phase 2: Extremes", title: "Level 7: Red Rust", briefing: "Mars has two tiny moons, Phobos and Deimos. It gets its color from iron oxide.", text: "What do we commonly call iron oxide?", ans: "rust", target: "mars", zoom: 10, debrief: "Exactly!" },
-            { phase: "Phase 2: Extremes", title: "Level 8: The Volcano", briefing: "Mars has a volcano three times the height of Mt. Everest.", text: "What is its name?", ans: "olympus mons", target: "mars", zoom: 10, debrief: "Mountain scaled!" },
-            { phase: "Phase 2: Extremes", title: "Level 9: The Tilt", briefing: "Uranus rolls on its side! Notice its 97-degree axial tilt.", text: "Which planet rolls around the sun on its side?", ans: "uranus", target: "uranus", zoom: 20, debrief: "Correct!" },
-            { phase: "Phase 2: Extremes", title: "Level 10: The Asteroids", briefing: "Look at the massive belt of thousands of rocks separating Mars and Jupiter.", text: "What is the name of this belt? (Two words)", ans: "asteroid belt", target: "sun", zoom: 400, debrief: "Phase 2 complete! To the stars." },
+            // Phase 2
+            { 
+                phase: "Phase 2: Planetary Extremes", title: "Level 6: The Heat Trap", 
+                briefing: "Venus is the hottest planet! Its thick atmosphere traps the sun's heat, raising the surface temperature to 900°F.",
+                text: "This heat-trapping process is known as what effect?", ans: "greenhouse effect",
+                debrief: "Correct. Now let's look at a planet that looks like a rusty old car.",
+                simHtml: `<div class="sim-object center-mass" style="top:45px; left:45%; background:orange; box-shadow: 0 0 40px orange, inset 0 0 20px red;"></div>`
+            },
+            { 
+                phase: "Phase 2: Planetary Extremes", title: "Level 7: The Rusty Planet", 
+                briefing: "Mars is the 'Red Planet.' The soil contains iron oxide, the same chemical reaction that happens to wet metal on Earth.",
+                text: "What do we commonly call iron oxide on Earth?", ans: "rust",
+                debrief: "Exactly! Mars also has geology that makes Earth's mountains look tiny.",
+                simHtml: `<div class="sim-object center-mass" style="top:45px; left:45%; background:#c1440e; box-shadow: 0 0 15px #c1440e;"></div>`
+            },
+            { 
+                phase: "Phase 2: Planetary Extremes", title: "Level 8: The Giant Volcano", 
+                briefing: "Because Mars has lower gravity, its volcanoes can grow massive. The biggest one is three times the height of Mt. Everest!",
+                text: "What is the name of this giant Martian mountain?", ans: "olympus mons",
+                debrief: "Mountain scaled! Let's head to the ice giants where things get sideways.",
+                simHtml: `<div style="width: 0; height: 0; border-left: 40px solid transparent; border-right: 40px solid transparent; border-bottom: 60px solid #c1440e; position:relative; top:10px;"></div>`
+            },
+            { 
+                phase: "Phase 2: Planetary Extremes", title: "Level 9: The Tilted World", 
+                briefing: "Most planets spin upright like a top. One ice giant was likely hit by a massive object billions of years ago, knocking it completely sideways!",
+                text: "Which planet rolls around the sun on its side?", ans: "uranus",
+                debrief: "Correct! Speaking of orbiting, let's talk speed limits.",
+                simHtml: `<div class="sim-object center-mass" style="top:45px; left:45%; background:cyan; box-shadow: 0 0 15px cyan; transform: rotate(90deg);"></div><div style="width: 80px; height: 5px; background: rgba(255,255,255,0.3); position: absolute; top: 58px; left: 40%; transform: rotate(90deg);"></div>`
+            },
+            { 
+                phase: "Phase 2: Planetary Extremes", title: "Level 10: The Speedy Planet", 
+                briefing: "The closer a planet is to the sun, the faster it must travel to avoid being pulled in. Mercury zips around faster than any other.",
+                text: "How many Earth days does it take for Mercury to complete one year?", ans: "88",
+                debrief: "Phase 2 complete! Now, we look beyond the planets to the stars.",
+                simHtml: `<div class="sim-object center-mass" style="top:45px; left:45%;"></div><div class="sim-orbit-container" style="left:40%; animation-duration: 1s;"><div class="sim-object planet-mass sim-orbit-body" style="background:gray;"></div></div>`
+            },
 
-            { phase: "Phase 3: Stars", title: "Level 11: Local Star", briefing: "Zoom back to the Sun. It provides all light for the system.", text: "Officially, our Sun is known as a 'Yellow [Blank]'.", ans: "dwarf", target: "sun", zoom: 80, debrief: "Correct!" },
-            { phase: "Phase 3: Stars", title: "Level 12: Big Boom", briefing: "Massive stars explode at the end of their lives.", text: "What is this stellar explosion called?", ans: "supernova", target: "sun", zoom: 800, debrief: "Boom!" },
-            { phase: "Phase 3: Stars", title: "Level 13: The Void", briefing: "A dying star can collapse into infinite density.", text: "What is the boundary edge of a black hole called?", ans: "event horizon", target: "sun", zoom: 800, debrief: "Code accepted." },
-            { phase: "Phase 3: Stars", title: "Level 14: Our Home", briefing: "Pan the camera around to see the Milky Way panorama.", text: "What is the name of our home galaxy?", ans: "milky way", target: "sun", zoom: 1000, debrief: "Welcome home." },
-            { phase: "Phase 3: Stars", title: "Level 15: Neighbor", briefing: "It takes over 4 years at light speed to reach the next star system.", text: "What is the closest individual star to our solar system?", ans: "proxima centauri", target: "sun", zoom: 1000, debrief: "Phase 3 complete! History time." },
+            // Phase 3
+            { 
+                phase: "Phase 3: Stars and Galaxies", title: "Level 11: Our Local Star", 
+                briefing: "Stars are classified by color and temperature. Hottest are blue, coolest are red. Our Sun is medium temperature.",
+                text: "Officially, our Sun is known as a 'Yellow [Blank].' What is the missing word?", ans: "dwarf",
+                debrief: "Correct! But what happens when a massive star runs out of fuel? fireworks.",
+                simHtml: `<div class="sim-object center-mass" style="top:45px; left:45%; background:yellow; box-shadow: 0 0 30px yellow;"></div>`
+            },
+            { 
+                phase: "Phase 3: Stars and Galaxies", title: "Level 12: The Big Boom", 
+                briefing: "When a massive star dies, gravity crushes its core, and the outer layers bounce off in the largest explosion in the universe.",
+                text: "What is this stellar explosion called?", ans: "supernova",
+                debrief: "Boom! These create the heavy elements in the universe. Sometimes they leave something terrifying behind...",
+                simHtml: `<div class="sim-explode" style="position:relative; top:30px;"></div>`
+            },
+            { 
+                phase: "Phase 3: Stars and Galaxies", title: "Level 13: Point of No Return", 
+                briefing: "Sometimes a dying star collapses into a point of infinite density where gravity is so strong not even light escapes.",
+                text: "What is the boundary edge of a black hole called?", ans: "event horizon",
+                debrief: "Code accepted. Black holes often sit at the center of galaxies.",
+                simHtml: `<div class="sim-blackhole" style="position:relative; top:30px;"></div>`
+            },
+            { 
+                phase: "Phase 3: Stars and Galaxies", title: "Level 14: Cosmic Neighborhood", 
+                briefing: "Our Sun is just one of billions of stars swirling together in a giant spiral-shaped structure.",
+                text: "What is the name of our home galaxy?", ans: "milky way",
+                debrief: "Welcome to the Milky Way! Now, who is our closest neighbor?",
+                simHtml: `<div style="font-size: 4rem; animation: spin 10s linear infinite;">🌀</div>`
+            },
+            { 
+                phase: "Phase 3: Stars and Galaxies", title: "Level 15: Next Door Neighbor", 
+                briefing: "It would take over 4 years at light speed to reach the nearest star system next door to ours.",
+                text: "What is the name of the closest individual star to our solar system?", ans: "proxima centauri",
+                debrief: "Phase 3 complete! Now, let's review the humans and machines who ventured into the dark.",
+                simHtml: `<div style="display:flex; gap:50px; justify-content:center; padding-top:30px;"><div class="sim-object center-mass" style="position:relative;"></div><div class="sim-object planet-mass" style="position:relative; background:red; box-shadow:0 0 10px red;"></div></div>`
+            },
             
-            { phase: "Phase 4: History", title: "Level 16: First Beep", briefing: "In 1957, the first artificial satellite was launched.", text: "What was its name?", ans: "sputnik", altAns: "sputnik 1", target: "earth", zoom: 15, debrief: "Correct." },
-            { phase: "Phase 4: History", title: "Level 17: First Steps", briefing: "Look at the moon orbiting Earth. It is tidally locked.", text: "Who was the first astronaut to walk on it?", ans: "neil armstrong", target: "earth", zoom: 10, debrief: "One small step..." },
-            { phase: "Phase 4: History", title: "Level 18: Space Lab", briefing: "Astronauts live on a massive floating laboratory orbiting Earth.", text: "What is the three-letter abbreviation for this station?", ans: "iss", target: "earth", zoom: 5, debrief: "The ISS is huge." },
-            { phase: "Phase 4: History", title: "Level 19: Chopper", briefing: "In 2021, NASA flew a tiny drone helicopter on Mars.", text: "What is its name?", ans: "ingenuity", target: "mars", zoom: 5, debrief: "Aviation on Mars is real!" },
-            { phase: "Phase 4: History", title: "Level 20: The Record", briefing: "A probe carrying a golden record is the farthest human-made object.", text: "What is the name of this probe?", ans: "voyager 1", target: "neptune", zoom: 50, debrief: "Phase 4 complete!" },
+            // Phase 4 (Static/Simple icons for history)
+            { phase: "Phase 4: Human Spaceflight", title: "Level 16: The First Beep", briefing: "In 1957, the Soviet Union launched the first artificial satellite. It was the size of a beach ball and beeped via radio.", text: "What was its name?", ans: "sputnik", altAns: "sputnik 1", debrief: "Correct. The Space Age began with a beep.", simHtml: `<span class="sim-static-img">🛰️</span>` },
+            { phase: "Phase 4: Human Spaceflight", title: "Level 17: The First Steps", briefing: "In 1969, Apollo 11 landed on the moon. A human stepped onto the surface.", text: "Who was the first astronaut to walk on the moon?", ans: "neil armstrong", debrief: "One small step... Now, humans live in space permanently.", simHtml: `<span class="sim-static-img">👨‍🚀🌕</span>` },
+            { phase: "Phase 4: Human Spaceflight", title: "Level 18: The Space Lab", briefing: "Astronauts from around the world now live and work together on a massive floating laboratory orbiting Earth.", text: "What is the three-letter abbreviation for this station?", ans: "iss", debrief: "The ISS is huge! We also send robots to do dangerous work.", simHtml: `<span class="sim-static-img">🛸</span>` },
+            { phase: "Phase 4: Human Spaceflight", title: "Level 19: Martian Chopper", briefing: "In 2021, NASA achieved the first controlled flight on another planet using a tiny drone helicopter on Mars.", text: "What is its name?", ans: "ingenuity", debrief: "Aviation on Mars is real! But what about sending messages outside the system?", simHtml: `<span class="sim-static-img">🚁🪐</span>` },
+            { phase: "Phase 4: Human Spaceflight", title: "Level 20: The Golden Record", briefing: "A probe launched in 1977 is now the farthest human-made object. It carries a golden record with sounds of Earth for aliens.", text: "What is the name of this probe?", ans: "voyager 1", debrief: "Phase 4 complete! Only 5 levels remain. Into the deep mysteries.", simHtml: `<span class="sim-static-img">📀📡</span>` },
 
-            { phase: "Phase 5: Mysteries", title: "Level 21: Eye in Sky", briefing: "A famous space telescope launched in 1990 changed astronomy.", text: "What is its name?", ans: "hubble", altAns: "hubble space telescope", target: "earth", zoom: 15, debrief: "Hubble was amazing." },
-            { phase: "Phase 5: Mysteries", title: "Level 22: Falling Rocks", briefing: "If a meteor survives the fall and hits Earth, its name changes.", text: "What is it called?", ans: "meteorite", target: "earth", zoom: 10, debrief: "Correct." },
-            { phase: "Phase 5: Mysteries", title: "Level 23: Shortcut", briefing: "Sci-fi loves theoretical tunnels connecting points in space.", text: "What is this tunnel called?", ans: "wormhole", target: "sun", zoom: 800, debrief: "Wormholes are theoretical..." },
-            { phase: "Phase 5: Mysteries", title: "Level 24: The Noodle", briefing: "Falling feet-first into a black hole stretches you out.", text: "What is the scientific word for this?", ans: "spaghettification", target: "sun", zoom: 800, debrief: "Hilarious, but deadly! Final lock." },
-            { phase: "Phase 5: Mysteries", title: "Level 25: Master Code", briefing: "Calculate: (Number of recognized planets, 8) + (Apollo mission number that first landed on the moon, 11).", text: "Enter the total number.", ans: "19", target: "earth", zoom: 10, debrief: "" }
+            // Phase 5
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 21: Eye in the Sky", briefing: "Before James Webb, a famous space telescope launched in 1990 changed how we see the universe with colorful nebula photos.", text: "What is its name?", ans: "hubble", altAns: "hubble space telescope", debrief: "Hubble changed astronomy. Let's look closer to home at falling debris.", simHtml: `<span class="sim-static-img">🔭🌌</span>` },
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 22: Falling Rocks", briefing: "When space rock hits Earth's atmosphere, it's a meteor. If it survives the fiery fall and hits the ground, its name changes.", text: "What do scientists call the space rock found on the ground?", ans: "meteorite", debrief: "Correct. Next, let's bend physics.", simHtml: `<div class="sim-object planet-mass" style="background:gray; left:50%; top:0; animation: warpSpeed 1s linear infinite;"></div>` },
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 23: Cosmic Shortcut", briefing: "Science fiction loves the idea of a theoretical tunnel connecting two distant points in space and time instantly.", text: "What is this theoretical tunnel called?", ans: "wormhole", debrief: "Wormholes are theoretical, but black holes do very real, very strange things...", simHtml: `<div style="font-size: 4rem; color:var(--neon-blue);">🕳️➰🕳️</div>` },
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 24: The Noodle Effect", briefing: "If you fell feet-first into a black hole, extreme gravity difference would stretch your body into a long string.", text: "What is the funny-sounding scientific word for this process?", ans: "spaghettification", debrief: "Hilarious, but deadly! Final lock reached.", simHtml: `<div style="width:20px; height:80px; background:var(--neon-red); border-radius:10px; animation: explode 3s linear reverse infinite;"></div>` },
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 25: Master Override", briefing: "Core mainframe reached. Calculate the final code: (Total number of recognized planets in our solar system) + (The Apollo mission number that first landed on the moon).", text: "Enter the total number.", ans: "19", debrief: "", simHtml: `<div style="font-size: 3rem; color:var(--neon-gold);">🔒 SYSTEM CORE 🔒</div>` }
         ];
 
         let currentLevel = 0;
-        
-        window.startGame = function() {
-            document.getElementById('answer-input').style.display = "block";
-            document.getElementById('submit-btn').innerText = "SUBMIT OVERRIDE CODE";
-            document.getElementById('submit-btn').onclick = window.checkAnswer;
-            window.animate(); 
-            window.loadLevel();
+        const ui = {
+            briefingSection: document.getElementById('briefing-section'),
+            questionSection: document.getElementById('question-section'),
+            debriefSection: document.getElementById('debrief-section'),
+            briefingText: document.getElementById('briefing-text'),
+            levelText: document.getElementById('level-text'),
+            debriefText: document.getElementById('debrief-text'),
+            inputField: document.getElementById('answer-input'),
+            submitBtn: document.getElementById('submit-btn'),
+            nextBtn: document.getElementById('next-btn'),
+            messageBox: document.getElementById('message'),
+            phaseDisplay: document.getElementById('phase-display'),
+            levelDisplay: document.getElementById('level-display'),
+            levelTitle: document.getElementById('level-title'),
+            simContent: document.getElementById('sim-content')
         };
 
-        window.loadLevel = function() {
+        ui.inputField.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") { event.preventDefault(); checkAnswer(); }
+        });
+
+        function startGame() {
+            ui.inputField.style.display = "block";
+            ui.submitBtn.innerText = "SUBMIT OVERRIDE CODE";
+            ui.submitBtn.onclick = checkAnswer;
+            loadLevel();
+        }
+
+        function loadLevel() {
             const levelData = levels[currentLevel];
-            document.getElementById('debrief-section').style.display = "none"; 
-            document.getElementById('next-btn').style.display = "none";
-            document.getElementById('answer-input').style.display = "block"; 
-            document.getElementById('submit-btn').style.display = "block";
-            document.getElementById('answer-input').value = ""; 
-            document.getElementById('message').innerText = ""; 
-            document.getElementById('answer-input').focus();
+            ui.debriefSection.style.display = "none"; ui.nextBtn.style.display = "none";
+            ui.inputField.style.display = "block"; ui.submitBtn.style.display = "block";
+            ui.inputField.value = ""; ui.messageBox.innerText = ""; ui.inputField.focus();
             
-            document.getElementById('phase-display').innerText = levelData.phase;
-            document.getElementById('level-display').innerText = `LEVEL: ${currentLevel + 1}/25`;
-            document.getElementById('level-title').innerText = levelData.title;
-            document.getElementById('briefing-text').innerText = levelData.briefing;
-            document.getElementById('level-text').innerText = levelData.text;
-            
-            window.flyTo(levelData.target, levelData.zoom);
-        };
+            ui.phaseDisplay.innerText = levelData.phase;
+            ui.levelDisplay.innerText = `LEVEL: ${currentLevel + 1}/25`;
+            ui.levelTitle.innerText = levelData.title;
+            ui.briefingText.innerText = levelData.briefing;
+            ui.levelText.innerText = levelData.text;
+            // Inject the specific simulation HTML for this level
+            ui.simContent.innerHTML = levelData.simHtml;
+        }
 
-        window.checkAnswer = function() {
-            const inputField = document.getElementById('answer-input');
-            const messageBox = document.getElementById('message');
-            const userAnswer = inputField.value.trim().toLowerCase();
+        function checkAnswer() {
+            const userAnswer = ui.inputField.value.trim().toLowerCase();
             const correctAnswer = levels[currentLevel].ans;
             const altAnswer = levels[currentLevel].altAns || correctAnswer;
 
             if (userAnswer === correctAnswer || userAnswer === altAnswer) {
-                messageBox.innerText = "";
-                inputField.style.display = "none";
-                document.getElementById('submit-btn').style.display = "none";
+                ui.messageBox.innerText = "";
+                ui.inputField.style.display = "none";
+                ui.submitBtn.style.display = "none";
                 
                 if(currentLevel < levels.length - 1) {
-                    document.getElementById('debrief-text').innerText = levels[currentLevel].debrief;
-                    document.getElementById('debrief-section').style.display = "block";
-                    document.getElementById('next-btn').style.display = "block";
+                    ui.debriefText.innerText = levels[currentLevel].debrief;
+                    ui.debriefSection.style.display = "block";
+                    ui.nextBtn.style.display = "block";
                 } else {
-                    window.showWinScreen();
+                    showWinScreen();
                 }
             } else {
-                messageBox.innerText = "ACCESS DENIED.";
-                messageBox.className = "error";
+                ui.messageBox.innerText = "ACCESS DENIED: INCORRECT DATA.";
+                ui.inputField.style.transform = "translateX(-10px)";
+                setTimeout(() => ui.inputField.style.transform = "translateX(10px)", 50);
+                setTimeout(() => ui.inputField.style.transform = "translateX(-10px)", 100);
+                setTimeout(() => ui.inputField.style.transform = "translateX(0)", 150);
             }
-        };
+        }
 
-        window.nextLevel = function() { currentLevel++; window.loadLevel(); };
+        function nextLevel() { currentLevel++; loadLevel(); }
 
-        window.showWinScreen = function() {
-            document.getElementById('phase-display').innerText = "SYSTEM RESTORED";
-            document.getElementById('level-title').innerText = "MISSION ACCOMPLISHED";
-            document.getElementById('briefing-section').style.display = "none"; 
-            document.getElementById('question-section').style.display = "none";
-            window.flyTo('earth', 15);
-            document.getElementById('debrief-section').style.display = "block";
-            document.getElementById('debrief-section').innerHTML = `<h3 style="color: var(--neon-gold);">Override Successful</h3><p>Commander! You have successfully rebooted the Stardust Voyager's mainframe. Return to Earth to claim your reward!</p>`;
-        };
-
-        document.getElementById('submit-btn').addEventListener('click', window.startGame);
-        document.getElementById('next-btn').addEventListener('click', window.nextLevel);
-        document.getElementById('answer-input').addEventListener("keypress", function(e) { if(e.key === "Enter") { e.preventDefault(); window.checkAnswer(); } });
-
+        function showWinScreen() {
+            ui.phaseDisplay.innerText = "SYSTEM RESTORED";
+            ui.levelDisplay.innerText = "STATUS: 100%";
+            ui.levelTitle.innerText = "MISSION ACCOMPLISHED";
+            ui.briefingSection.style.display = "none";
+            ui.questionSection.style.display = "none";
+            ui.simContent.innerHTML = `<div style="font-size: 5rem;">✅</div>`
+            ui.debriefSection.style.display = "block";
+            ui.debriefSection.innerHTML = `<h3 style="color: var(--neon-gold);">Override Successful</h3><p>Congratulations, Commander! You have successfully rebooted the Stardust Voyager's mainframe. Return to Earth headquarters to claim your reward!</p>`;
+        }
     </script>
 </body>
 </html>
