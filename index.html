@@ -50,13 +50,6 @@
             color: #e0e0e0;
         }
 
-        .image-placeholder {
-            color: #a0a0a0;
-            font-style: italic;
-            margin: 15px 0;
-            display: block;
-        }
-
         input[type="text"] {
             background-color: #000;
             border: 1px solid #4df8ff;
@@ -114,7 +107,6 @@
         </div>
         
         <h2 id="level-title">Incoming Transmission...</h2>
-        <span class="image-placeholder" id="level-image"></span>
         <p id="level-text">CRITICAL ALERT: The main computer of the Stardust Voyager has locked down. As the Junior Science Officer, you must bypass the security lockouts by proving your scientific knowledge. You are authorized to use the ship's database (the internet). Click START to begin.</p>
         
         <input type="text" id="answer-input" placeholder="ENTER OVERRIDE CODE" style="display:none;" autocomplete="off">
@@ -124,57 +116,36 @@
     </div>
 
     <script>
-        // The 25 Levels Data
         const levels = [
-            // Phase 1
-            { phase: "Phase 1: Solar System Basics", title: "Level 1: The Invisible String", text: "What is the invisible pulling force that keeps the Earth orbiting the Sun, and the Moon orbiting the Earth?", img: "", ans: "gravity" },
-            { phase: "Phase 1: Solar System Basics", title: "Level 2: The Space Track", text: "Planets do not travel in perfect circles around the sun. Their paths are slightly stretched out into an oval shape. What is the scientific word for this shape?", img: "
-
-[Image of an elliptical planetary orbit]
-", ans: "ellipse", altAns: "elliptical" },
-            { phase: "Phase 1: Solar System Basics", title: "Level 3: The Measuring Stick", text: "Scientists use the distance from the Earth to the Sun as a cosmic measuring stick. What is this measurement called? (Two words)", img: "", ans: "astronomical unit" },
-            { phase: "Phase 1: Solar System Basics", title: "Level 4: The Great Storm", text: "Sensors are picking up a massive storm on Jupiter. This storm is bigger than Earth and has been raging for hundreds of years. What is the famous three-word name for this storm?", img: "
-
-[Image of Jupiter's Great Red Spot]
-", ans: "great red spot" },
-            { phase: "Phase 1: Solar System Basics", title: "Level 5: Rings of Ice", text: "Saturn is famous for its beautiful rings. They are actually made of billions of tiny chunks of rock and what other frozen substance?", img: "", ans: "ice", altAns: "water ice" },
+            { phase: "Phase 1: Solar System Basics", title: "Level 1: The Invisible String", text: "What is the invisible pulling force that keeps the Earth orbiting the Sun, and the Moon orbiting the Earth?", ans: "gravity" },
+            { phase: "Phase 1: Solar System Basics", title: "Level 2: The Space Track", text: "Planets do not travel in perfect circles around the sun. Their paths are slightly stretched out into an oval shape. What is the scientific word for this shape?", ans: "ellipse", altAns: "elliptical" },
+            { phase: "Phase 1: Solar System Basics", title: "Level 3: The Measuring Stick", text: "Scientists use the distance from the Earth to the Sun as a cosmic measuring stick. What is this measurement called? (Two words)", ans: "astronomical unit" },
+            { phase: "Phase 1: Solar System Basics", title: "Level 4: The Great Storm", text: "Sensors are picking up a massive storm on Jupiter. This storm is bigger than Earth and has been raging for hundreds of years. What is the famous three-word name for this storm?", ans: "great red spot" },
+            { phase: "Phase 1: Solar System Basics", title: "Level 5: Rings of Ice", text: "Saturn is famous for its beautiful rings. They are actually made of billions of tiny chunks of rock and what other frozen substance?", ans: "ice", altAns: "water ice" },
             
-            // Phase 2
-            { phase: "Phase 2: Planetary Extremes", title: "Level 6: The Heat Trap", text: "Venus is the hottest planet because its thick atmosphere traps the sun's heat, just like a glass building used to grow plants. What is this heating effect called?", img: "", ans: "greenhouse effect" },
-            { phase: "Phase 2: Planetary Extremes", title: "Level 7: The Rusty Planet", text: "Mars is the 'Red Planet'. The soil gets this color from iron oxide, which is the exact same stuff that makes old cars turn flaky, red, and orange on Earth. What do we call this on Earth?", img: "", ans: "rust" },
-            { phase: "Phase 2: Planetary Extremes", title: "Level 8: The Giant Volcano", text: "Earth's Mount Everest is tiny compared to the biggest volcano in our solar system, located on Mars. What is the name of this giant Martian mountain?", img: "", ans: "olympus mons" },
-            { phase: "Phase 2: Planetary Extremes", title: "Level 9: The Tilted World", text: "Most planets spin somewhat upright, but one of our ice giants spins completely on its side, rolling around the sun like a barrel! Which planet is this?", img: "", ans: "uranus" },
-            { phase: "Phase 2: Planetary Extremes", title: "Level 10: The Speedy Planet", text: "Mercury is the closest planet to the Sun. How many Earth days does it take for Mercury to complete one orbit around the Sun?", img: "", ans: "88" },
+            { phase: "Phase 2: Planetary Extremes", title: "Level 6: The Heat Trap", text: "Venus is the hottest planet because its thick atmosphere traps the sun's heat, just like a glass building used to grow plants. What is this heating effect called?", ans: "greenhouse effect" },
+            { phase: "Phase 2: Planetary Extremes", title: "Level 7: The Rusty Planet", text: "Mars is the 'Red Planet'. The soil gets this color from iron oxide, which is the exact same stuff that makes old cars turn flaky, red, and orange on Earth. What do we call this on Earth?", ans: "rust" },
+            { phase: "Phase 2: Planetary Extremes", title: "Level 8: The Giant Volcano", text: "Earth's Mount Everest is tiny compared to the biggest volcano in our solar system, located on Mars. What is the name of this giant Martian mountain?", ans: "olympus mons" },
+            { phase: "Phase 2: Planetary Extremes", title: "Level 9: The Tilted World", text: "Most planets spin somewhat upright, but one of our ice giants spins completely on its side, rolling around the sun like a barrel! Which planet is this?", ans: "uranus" },
+            { phase: "Phase 2: Planetary Extremes", title: "Level 10: The Speedy Planet", text: "Mercury is the closest planet to the Sun. How many Earth days does it take for Mercury to complete one orbit around the Sun?", ans: "88" },
             
-            // Phase 3
-            { phase: "Phase 3: Stars and Galaxies", title: "Level 11: Our Local Star", text: "Stars come in different sizes and colors. Based on its color classification, our Sun is officially known as a 'Yellow [Blank].' What is the missing word?", img: "", ans: "dwarf" },
-            { phase: "Phase 3: Stars and Galaxies", title: "Level 12: The Big Boom", text: "When a massive star runs out of fuel, it collapses and explodes in one of the brightest flashes in the universe. What is this explosion called?", img: "
-
-[Image of a supernova explosion]
-", ans: "supernova" },
-            { phase: "Phase 3: Stars and Galaxies", title: "Level 13: Point of No Return", text: "Black holes have gravity so strong nothing escapes. What is the boundary edge of a black hole called, where even light gets trapped?", img: "
-
-[Image of a black hole diagram showing the event horizon]
-", ans: "event horizon" },
-            { phase: "Phase 3: Stars and Galaxies", title: "Level 14: Cosmic Neighborhood", text: "Our Sun is just one of billions of stars swirling together in a giant spiral galaxy. What is the name of our home galaxy?", img: "", ans: "milky way" },
-            { phase: "Phase 3: Stars and Galaxies", title: "Level 15: Next Door Neighbor", text: "If we wanted to travel to another star, the closest individual star to our Solar System is part of the Alpha Centauri system. What is its name?", img: "", ans: "proxima centauri" },
+            { phase: "Phase 3: Stars and Galaxies", title: "Level 11: Our Local Star", text: "Stars come in different sizes and colors. Based on its color classification, our Sun is officially known as a 'Yellow [Blank].' What is the missing word?", ans: "dwarf" },
+            { phase: "Phase 3: Stars and Galaxies", title: "Level 12: The Big Boom", text: "When a massive star runs out of fuel, it collapses and explodes in one of the brightest flashes in the universe. What is this explosion called?", ans: "supernova" },
+            { phase: "Phase 3: Stars and Galaxies", title: "Level 13: Point of No Return", text: "Black holes have gravity so strong nothing escapes. What is the boundary edge of a black hole called, where even light gets trapped?", ans: "event horizon" },
+            { phase: "Phase 3: Stars and Galaxies", title: "Level 14: Cosmic Neighborhood", text: "Our Sun is just one of billions of stars swirling together in a giant spiral galaxy. What is the name of our home galaxy?", ans: "milky way" },
+            { phase: "Phase 3: Stars and Galaxies", title: "Level 15: Next Door Neighbor", text: "If we wanted to travel to another star, the closest individual star to our Solar System is part of the Alpha Centauri system. What is its name?", ans: "proxima centauri" },
             
-            // Phase 4
-            { phase: "Phase 4: Human Spaceflight", title: "Level 16: The First Beep", text: "In 1957, humans launched the very first artificial satellite into space. It was the size of a beach ball and beeped over the radio. What was its name?", img: "", ans: "sputnik", altAns: "sputnik 1" },
-            { phase: "Phase 4: Human Spaceflight", title: "Level 17: The First Steps", text: "In 1969, the Apollo 11 mission successfully landed on the moon. Who was the first astronaut to step out of the spacecraft and walk on the lunar surface?", img: "", ans: "neil armstrong" },
-            { phase: "Phase 4: Human Spaceflight", title: "Level 18: The Space Lab", text: "Right now, there is a giant science laboratory orbiting Earth where astronauts live and work. What is the three-letter abbreviation for this station?", img: "", ans: "iss" },
-            { phase: "Phase 4: Human Spaceflight", title: "Level 19: Martian Chopper", text: "NASA sent a tiny robotic helicopter that actually flew in the Martian atmosphere! What is the name of this little helicopter?", img: "", ans: "ingenuity" },
-            { phase: "Phase 4: Human Spaceflight", title: "Level 20: The Golden Record", text: "In 1977, NASA launched a space probe carrying a golden record. It is now the farthest human-made object from Earth. What is its name?", img: "
-
-[Image of the Voyager Golden Record]
-", ans: "voyager 1" },
+            { phase: "Phase 4: Human Spaceflight", title: "Level 16: The First Beep", text: "In 1957, humans launched the very first artificial satellite into space. It was the size of a beach ball and beeped over the radio. What was its name?", ans: "sputnik", altAns: "sputnik 1" },
+            { phase: "Phase 4: Human Spaceflight", title: "Level 17: The First Steps", text: "In 1969, the Apollo 11 mission successfully landed on the moon. Who was the first astronaut to step out of the spacecraft and walk on the lunar surface?", ans: "neil armstrong" },
+            { phase: "Phase 4: Human Spaceflight", title: "Level 18: The Space Lab", text: "Right now, there is a giant science laboratory orbiting Earth where astronauts live and work. What is the three-letter abbreviation for this station?", ans: "iss" },
+            { phase: "Phase 4: Human Spaceflight", title: "Level 19: Martian Chopper", text: "NASA sent a tiny robotic helicopter that actually flew in the Martian atmosphere! What is the name of this little helicopter?", ans: "ingenuity" },
+            { phase: "Phase 4: Human Spaceflight", title: "Level 20: The Golden Record", text: "In 1977, NASA launched a space probe carrying a golden record. It is now the farthest human-made object from Earth. What is its name?", ans: "voyager 1" },
             
-            // Phase 5
-            { phase: "Phase 5: Deep Space Mysteries", title: "Level 21: Eye in the Sky", text: "Before James Webb, a famous space telescope launched in 1990 changed the way we see the universe. What is its name?", img: "", ans: "hubble", altAns: "hubble space telescope" },
-            { phase: "Phase 5: Deep Space Mysteries", title: "Level 22: Falling Rocks", text: "If a rock from space survives the fall through the atmosphere and hits the ground, what do scientists call it?", img: "", ans: "meteorite" },
-            { phase: "Phase 5: Deep Space Mysteries", title: "Level 23: Cosmic Shortcut", text: "Science fiction loves this theoretical tunnel connecting two different points in space and time. What is it called?", img: "", ans: "wormhole" },
-            { phase: "Phase 5: Deep Space Mysteries", title: "Level 24: The Noodle Effect", text: "If you fell feet-first into a black hole, gravity would stretch you out like a long piece of pasta. What is the funny-sounding scientific word for this?", img: "", ans: "spaghettification" },
-            { phase: "Phase 5: Deep Space Mysteries", title: "Level 25: Master Override", text: "To reboot the ship, add these two numbers together: 1. Total recognized planets in our solar system. 2. The Apollo mission number that first landed humans on the moon. Enter the final number.", img: "", ans: "19" }
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 21: Eye in the Sky", text: "Before James Webb, a famous space telescope launched in 1990 changed the way we see the universe. What is its name?", ans: "hubble", altAns: "hubble space telescope" },
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 22: Falling Rocks", text: "If a rock from space survives the fall through the atmosphere and hits the ground, what do scientists call it?", ans: "meteorite" },
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 23: Cosmic Shortcut", text: "Science fiction loves this theoretical tunnel connecting two different points in space and time. What is it called?", ans: "wormhole" },
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 24: The Noodle Effect", text: "If you fell feet-first into a black hole, gravity would stretch you out like a long piece of pasta. What is the funny-sounding scientific word for this?", ans: "spaghettification" },
+            { phase: "Phase 5: Deep Space Mysteries", title: "Level 25: Master Override", text: "To reboot the ship, add these two numbers together: 1. Total recognized planets in our solar system. 2. The Apollo mission number that first landed humans on the moon. Enter the final number.", ans: "19" }
         ];
 
         let currentLevel = 0;
@@ -182,7 +153,6 @@
         const submitBtn = document.getElementById('submit-btn');
         const messageBox = document.getElementById('message');
 
-        // Allow pressing 'Enter' to submit
         inputField.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -202,7 +172,6 @@
             document.getElementById('phase-display').innerText = levelData.phase;
             document.getElementById('level-display').innerText = `LEVEL: ${currentLevel + 1}/25`;
             document.getElementById('level-title').innerText = levelData.title;
-            document.getElementById('level-image').innerText = levelData.img;
             document.getElementById('level-text').innerText = levelData.text;
             
             inputField.value = "";
@@ -229,7 +198,6 @@
             } else {
                 messageBox.innerText = "ACCESS DENIED: INCORRECT DATA. TRY AGAIN.";
                 messageBox.className = "error";
-                // Shake effect for error
                 inputField.style.transform = "translateX(-10px)";
                 setTimeout(() => inputField.style.transform = "translateX(10px)", 50);
                 setTimeout(() => inputField.style.transform = "translateX(-10px)", 100);
@@ -241,7 +209,6 @@
             document.getElementById('phase-display').innerText = "SYSTEM RESTORED";
             document.getElementById('level-display').innerText = "STATUS: 100%";
             document.getElementById('level-title').innerText = "MISSION ACCOMPLISHED";
-            document.getElementById('level-image').innerText = "";
             document.getElementById('level-text').innerText = "Congratulations, Commander! You have successfully rebooted the Stardust Voyager's mainframe. Your knowledge of the cosmos has saved the crew. Return to Earth (the living room) to claim your reward!";
             
             inputField.style.display = "none";
